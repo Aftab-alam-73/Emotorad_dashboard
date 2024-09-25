@@ -8,7 +8,9 @@ import cors from 'cors';
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin:"https://66f42e795f1b8808648a4dbd--thriving-donut-b7dc4f.netlify.app"
+}));
 
 app.use('/api/auth', authRoutes);
 
