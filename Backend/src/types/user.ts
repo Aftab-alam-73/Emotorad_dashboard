@@ -5,3 +5,9 @@ export type UserType={
     profile?:string
     
 }
+export type GoogleUserType={
+    name:string,
+    email:string,
+    profile:string,
+   
+}

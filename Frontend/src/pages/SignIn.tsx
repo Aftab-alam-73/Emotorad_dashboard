@@ -1,24 +1,43 @@
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { userContext } from "../contexts/AuthContext";
+import { app } from "../firebase";
+import { makeRequest } from "../axios";
 
 const SignIn = () => {
+  const navigate=useNavigate();
+  const {setUser}=useContext(userContext);
   const [userData,setUserData]=useState({password:'',email:''})
 
   const handleSingin=async(e:any)=>{
     e.preventDefault();
-    const response=await axios.post("http://localhost:8000/api/auth/signin",userData);
-    console.log(response);
+    const {data}=await makeRequest.post<{success:boolean,message:string , data:any}>("/auth/signin",userData);
     // Redirect to dashboard page if successful.
+    if(data?.success){
+      setUser({id:data?.data?._id,name:data?.data.name,email:data?.data.email})
+      navigate('/');
+    }
   }
   // SignIn with Google functionality
   const siginInWithGoogle=()=>{
     console.log("google credentials")
-    const auth=getAuth();
+    const auth=getAuth(app);
     auth.languageCode = 'it';
     const provider=new GoogleAuthProvider();
-    signInWithPopup(auth,provider).then((result:any)=>{
+    signInWithPopup(auth,provider).then(async(result:any)=>{
      // make api request to server with the recived credentials
-     
+    const payload={
+      name:result.user.displayName,
+      email:result.user.email,
+      profile:result.user.photoURL
+    }
+    
+    const {data}=await makeRequest.post<{success:boolean,data:any}>("/auth/login/google",payload);
+     if(data?.success){
+      setUser({id:data?.data?._id,name:data?.data.name,email:data?.data.email})
+      navigate('/')
+     }
     }).catch((error:any)=>{
       console.log("error: ",error);
     })
@@ -99,7 +118,7 @@ const SignIn = () => {
 
           <p className="mt-4 text-center">
             Don’t have an account?{' '}
-            <a href="#" className="text-indigo-500 hover:underline">
+            <a href="/signup" className="text-indigo-500 hover:underline">
               Register here
             </a>
           </p>

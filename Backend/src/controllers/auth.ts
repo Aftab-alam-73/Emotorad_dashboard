@@ -1,33 +1,30 @@
-
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user";
 import { getToken } from "../lib/generateToken";
-import { UserType } from "../types/user";
+import { GoogleUserType, UserType } from "../types/user";
 class AuthController {
   // Signup
   SignUp = async (req: Request, res: Response) => {
     const { email, password } = req.body as UserType;
-
     try {
       const user = await User.findOne({
-          email 
+        email,
       });
-
-      if (user) {
+      if (user)
         return res.json({ success: false, message: "User already exists" });
-      } else {
-        const salt = bcrypt.genSaltSync(10);
-        const hashPassword = bcrypt.hashSync(password, salt);
-        const newUser = await User.create({
-          data: { ...req.body, password: hashPassword },
-        });
-        return res.status(200).json({
-          success: true,
-          message: "User created successfully!",
-          newUser,
-        });
-      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const hashPassword = bcrypt.hashSync(password, salt);
+      const newUser = await User.create({
+        ...req.body,
+        password: hashPassword,
+      });
+      return res.status(200).json({
+        success: true,
+        message: "User created successfully!",
+        newUser,
+      });
     } catch (err: any) {
       return res
         .status(501)
@@ -42,14 +39,13 @@ class AuthController {
 
     try {
       const user = await User.findOne({
-         email
+        email,
       });
       if (user) {
         const result = await bcrypt.compare(password, user.password!);
 
         if (result) {
           const token = getToken(user.id);
-          const { password, ...others } = user;
           return res
             .status(200)
             .cookie("access_token", token, {
@@ -61,7 +57,7 @@ class AuthController {
             .json({
               success: true,
               message: "User signed in successfully",
-              data: others,
+              data: user,
             });
         } else {
           return res
@@ -81,16 +77,14 @@ class AuthController {
   // SignIn With Google Account
 
   GoogleSignIn = async (req: Request, res: Response) => {
-    const { name, email, profile } = req.body as UserType;
-
+    const { name, email, profile } = req.body as GoogleUserType;
     try {
       const user = await User.findOne({
-        email 
+        email,
       });
 
       if (user) {
         const token = getToken(user.id) as string;
-        const { password, email, ...others } = user;
         return res
           .status(200)
           .cookie("access_token", token, {
@@ -99,11 +93,10 @@ class AuthController {
             secure: true,
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           })
-          .json({ success: true, data: others });
+          .json({ success: true, data: user });
       }
-      const newUser = await User.create({
-        data: { name, email, profile },
-      });
+      const newUser = await User.create(
+        { name, email, profile,isGoogle: true});
       const token = getToken(newUser.id);
       return res
         .status(200)
@@ -131,7 +124,10 @@ class AuthController {
     const { id, profile } = req.body as { id: string; profile: string };
 
     try {
-      const updatedProfile = await User.findByIdAndUpdate({_id:id},{$set:{profile}})
+      const updatedProfile = await User.findByIdAndUpdate(
+        { _id: id },
+        { $set: { profile } }
+      );
       return res
         .status(200)
         .json({ success: true, message: "profile updated", updatedProfile });

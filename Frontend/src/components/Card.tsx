@@ -1,7 +1,7 @@
 import { CardType } from "../types";
 const Card = ({ data }: { data: CardType }) => {
   return (
-    <div className="shadow border border-slate-300 w-[250px] p-4   rounded-xl flex flex-col gap-1">
+    <div className="shadow border border-slate-300 min-w-[200px] p-4   rounded-xl flex flex-col gap-1">
       <div className="flex flex-col ">
         <span
           className={`w-[35px] h-[35px]  flex justify-center items-center rounded-full text-white`}

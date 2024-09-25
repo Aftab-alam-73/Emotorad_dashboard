@@ -1,12 +1,16 @@
 import { useState } from "react";
+import {  useNavigate } from "react-router-dom";
+import { makeRequest } from "../axios";
 
 const SignUp = () => {
+  const navigate=useNavigate()
   const [userData,setUserData]=useState({name:'',password:'',email:''})
   const handleSingup=async(e:any)=>{
     e.preventDefault();
-    const response=await axios.post('http://localhost:8000/api/auth/signup',userData);
-    console.log(response.data);
-    // redirecting to dashboard page
+    const {data}=await makeRequest.post<{success:boolean,message:string,newUser:any}>('/auth/signup',userData);
+    if(data?.success){
+      navigate('/signin');
+    }
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -89,7 +93,7 @@ const SignUp = () => {
 
           <p className="mt-4 text-center">
             Do you have an account?{' '}
-            <a href="#" className="text-indigo-500 hover:underline">
+            <a href="/signin" className="text-indigo-500 hover:underline">
               Login here
             </a>
           </p>

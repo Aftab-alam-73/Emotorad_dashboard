@@ -12,7 +12,7 @@ const userSchema=new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true
+        
     },
     phone:{
         type:String,
@@ -26,6 +26,10 @@ const userSchema=new mongoose.Schema({
     profile:{
         type:String,
         default:'https://media.istockphoto.com/id/1451587807/vector/user-profile-icon-vector-avatar-or-person-icon-profile-picture-portrait-symbol-vector.jpg?s=1024x1024&w=is&k=20&c=ZVVVbYUtoZgPqbVSDxoltjnrW3G_4DLKYk6QZ0uu5_w='
+    },
+    isGoogle:{
+        type:Boolean,
+        default:false
     }
 })
 
